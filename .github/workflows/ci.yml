@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 22, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Pack dry run
+        run: npm pack --dry-run
+
+  package-manager-smoke:
+    name: Install smoke (${{ matrix.manager }})
+    runs-on: ubuntu-latest
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        manager: [npm, pnpm, yarn, bun]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        if: matrix.manager == 'pnpm'
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Setup Bun
+        if: matrix.manager == 'bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Enable Corepack
+        if: matrix.manager == 'yarn'
+        run: corepack enable
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build package
+        run: npm run build
+
+      - name: Pack tarball
+        run: npm pack --pack-destination ./.artifacts
+
+      - name: Install tarball with ${{ matrix.manager }}
+        shell: bash
+        run: |
+          TAR="$(echo ../../.artifacts/*.tgz)"
+          mkdir -p ./.smoke/${{ matrix.manager }}
+          cd ./.smoke/${{ matrix.manager }}
+          printf '{ "name": "sopan-smoke", "private": true }\n' > package.json
+
+          case "${{ matrix.manager }}" in
+            npm)
+              npm install "$TAR"
+              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              ;;
+            pnpm)
+              pnpm add "$TAR"
+              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              ;;
+            yarn)
+              yarn add "$TAR"
+              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              ;;
+            bun)
+              bun add "$TAR"
+              bun -e 'import { clean } from "sopan"; console.log(clean("t41"));'
+              ;;
+          esac
