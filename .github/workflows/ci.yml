@@ -84,13 +84,16 @@ jobs:
       - name: Build package
         run: npm run build
 
+      - name: Create artifacts directory
+        run: mkdir -p ./.artifacts
+
       - name: Pack tarball
         run: npm pack --pack-destination ./.artifacts
 
       - name: Install tarball with ${{ matrix.manager }}
         shell: bash
         run: |
-          TAR="$(echo ../../.artifacts/*.tgz)"
+          TAR="$(echo "$GITHUB_WORKSPACE"/.artifacts/*.tgz)"
           mkdir -p ./.smoke/${{ matrix.manager }}
           cd ./.smoke/${{ matrix.manager }}
           printf '{ "name": "sopan-smoke", "private": true }\n' > package.json

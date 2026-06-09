@@ -5,6 +5,8 @@ node_modules/
 dist/
 coverage/
 commonjs/
+.artifacts/
+.smoke/
 
 # Package manager artifacts
 npm-debug.log*
