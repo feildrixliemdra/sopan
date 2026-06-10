@@ -101,18 +101,18 @@ jobs:
           case "${{ matrix.manager }}" in
             npm)
               npm install "$TAR"
-              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              node -e 'import("@fldx/sopan").then((m)=>console.log(m.clean("t41")))'
               ;;
             pnpm)
               pnpm add "$TAR"
-              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              node -e 'import("@fldx/sopan").then((m)=>console.log(m.clean("t41")))'
               ;;
             yarn)
               yarn add "$TAR"
-              node -e 'import("sopan").then((m)=>console.log(m.clean("t41")))'
+              node -e 'import("@fldx/sopan").then((m)=>console.log(m.clean("t41")))'
               ;;
             bun)
               bun add "$TAR"
-              bun -e 'import { clean } from "sopan"; console.log(clean("t41"));'
+              bun -e 'import { clean } from "@fldx/sopan"; console.log(clean("t41"));'
               ;;
           esac
