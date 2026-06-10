@@ -1,31 +1,33 @@
-# sopan
+# @fldx/sopan
+
+![banner](banner.png)
 
 Small TypeScript-first profanity filter for Indonesian text.
 
-`sopan` is dependency-free at runtime and exposes a compact API for JavaScript and TypeScript projects.
+`@fldx/sopan` is dependency-free at runtime and exposes a compact API for JavaScript and TypeScript projects.
 
 ## Install
 
 ```sh
-npm install sopan
+npm install @fldx/sopan
 ```
 
 ```sh
-pnpm add sopan
+pnpm add @fldx/sopan
 ```
 
 ```sh
-yarn add sopan
+yarn add @fldx/sopan
 ```
 
 ```sh
-bun add sopan
+bun add @fldx/sopan
 ```
 
 ## Usage
 
 ```ts
-import { addWords, clean, containsProfanity, findProfanity } from "sopan";
+import { addWords, clean, containsProfanity, findProfanity } from "@fldx/sopan";
 
 addWords(["kasar"]);
 
@@ -38,7 +40,7 @@ clean("ka$aar!"); // "***!"
 CommonJS is supported too:
 
 ```js
-const { clean, containsProfanity } = require("sopan");
+const { clean, containsProfanity } = require("@fldx/sopan");
 
 containsProfanity("ta1"); // true
 clean("ta1"); // "***"
